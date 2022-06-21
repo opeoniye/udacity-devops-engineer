@@ -58,7 +58,7 @@ Resources:
           sudo apt-get install apache2 -y
           sudo systemctl start apache2.service
           cd /var/www/html
-          echo "BamsProject2 up and running! \n Server: $(hostname -f)" > index.html 
+          echo "BamsProject2 up and running! \nServer: $(hostname -f)" > index.html 
       ImageId: ami-0729e439b6769d6ab
       SecurityGroups:
       - Ref: AppServerSecurityGroup
