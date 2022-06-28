@@ -1,4 +1,5 @@
-[![CircleCI](https://dl.circleci.com/status-badge/img/gh/opeoniye/udacity-devops-engineer/tree/circleci-project-setup.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/opeoniye/udacity-devops-engineer/tree/circleci-project-setup)
+## DevOps Enginner Nanodegree (Udacity)
+### Project 2: Deploy A High Availability Web App Using CloufFormation
+This folder contains all my work in completing the 2nd project in the DevOps Engineer Nanodegree program.
 
-## Udacity DevOps Enginner Nanodegree
-This is a repo containing all my course work and projects during my Nanodegree DevOps Engineer program at Udacity.
+Project url: [BamsProject2](http://bams-webap-h8jge0keym1y-1459565905.us-east-1.elb.amazonaws.com/)
