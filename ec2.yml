@@ -1,6 +1,9 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: Bams trying Udacity challenge 1 - launching 2 resources with cloudformation
 Parameters:
+  Environment:
+    Description: An environment name that will be prefixed to resource names
+    Type: String
   VPC:
     Description: parameter VPC
     Type: AWS::EC2::VPC::Id
@@ -47,3 +50,16 @@ Resources:
       #     yum update -y
       #     yum install -y nginx
       #     systemctl start nginx
+
+Outputs:
+  EC2SecurityGrp:
+    Description: Security group id
+    Value: !Ref EC2SecurityGrp
+    Export:
+      Name: !Sub ${Environment}-SecurityGrpId
+
+  EC2Instance:
+    Description: EC2 instance IP
+    Value: !GetAtt EC2Instance.PublicIp
+    Export:
+      Name: !Sub ${Environment}-InstanceIp

@@ -1,5 +1,9 @@
 [
     {
+		"ParameterKey": "Environment",
+		"ParameterValue": "BamsAnsible"
+	},
+    {
         "ParameterKey": "VPC",
         "ParameterValue": "vpc-0784ce1583ea8b21d"
     },
