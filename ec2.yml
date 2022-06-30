@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Bams trying Udacity challenge 1 - launching 2 resources with cloudformation
+Parameters:
+  VPC:
+    Description: parameter VPC
+    Type: AWS::EC2::VPC::Id
+  AMI:
+    Description: AMI parameter
+    Type: String
+  Subnet:
+    Description: VPC subnet parameter
+    Type: AWS::EC2::Subnet::Id
+
+Resources:
+  EC2SecurityGrp:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Open only port 3000
+      VpcId: 
+        Ref: VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3000
+          ToPort: 3000
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          FromPort: -1
+          ToPort: -1
+          CidrIp: 0.0.0.0/0      
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      ImageId: !Ref AMI
+      KeyName: bams
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: "true"
+          DeviceIndex: "0"
+          GroupSet: 
+            - Ref: "EC2SecurityGrp"
+          SubnetId: 
+            Ref: "Subnet"
+      # UserData:
+      #   Fn::Base64: !Sub |
+      #     #!/bin/bash
+      #     yum update -y
+      #     yum install -y nginx
+      #     systemctl start nginx
