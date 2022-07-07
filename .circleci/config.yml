@@ -28,6 +28,12 @@ jobs:
               --template-body file://ec2.yml \
               --parameters file://ec2.json \
               --region=us-east-1
+      - run:
+          name: Get EC2 ip 
+          command: |
+            aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --output text >> play
 
   config_infra:
     docker:
@@ -40,12 +46,6 @@ jobs:
           name: Install ansible
           command: |
             apk add --update ansible
-      - run:
-          name: Get EC2 ip 
-          command: |
-            aws ec2 describe-instances \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --output text >> play
       - run:
           name: Play playbook
           command: |
