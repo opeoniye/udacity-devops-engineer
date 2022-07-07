@@ -15,71 +15,88 @@ commands:
 
 
 jobs:
-  howfar:
-    docker:
-      - image: cimg/base:2021.04
-    steps:
-      - checkout
-      - run: echo "hello world"
+  # howfar:
+  #   docker:
+  #     - image: cimg/base:2021.04
+  #   steps:
+  #     - checkout
+  #     - run: echo "hello world"
 
-  create_infra:
-    docker:
-      - image: amazon/aws-cli
-    steps:
-      - checkout
-      - pipeline_id
-      - run:
-          name: Install tar utility
-          command: |
-            yum install -y tar gzip
-      - run: 
-          name: create cloudformation stack
-          command: |
-            aws cloudformation create-stack \
-              --stack-name bams-${CIRCLE_WORKFLOW_ID:0:5} \
-              --template-body file://ec2.yml \
-              --parameters file://ec2.json \
-              --region=us-east-1
-      - run:
-          name: Wait for infrastructure creation
-          command: |
-            aws cloudformation wait stack-create-complete \
-              --stack-name bams-${CIRCLE_WORKFLOW_ID:0:5}
-      - run:
-          name: Get EC2 IP and output for ansible playbook
-          command: |
-            aws ec2 describe-instances \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --output text >> play
-      - run: cat play
-      - persist_to_workspace:
-          root: .
-          paths: 
-            - .
+  # create_infra:
+  #   docker:
+  #     - image: amazon/aws-cli
+  #   steps:
+  #     - checkout
+  #     - pipeline_id
+  #     - run:
+  #         name: Install tar utility
+  #         command: |
+  #           yum install -y tar gzip
+  #     - run: 
+  #         name: create cloudformation stack
+  #         command: |
+  #           aws cloudformation create-stack \
+  #             --stack-name bams-${CIRCLE_WORKFLOW_ID:0:5} \
+  #             --template-body file://ec2.yml \
+  #             --parameters file://ec2.json \
+  #             --region=us-east-1
+  #     - run:
+  #         name: Wait for infrastructure creation
+  #         command: |
+  #           aws cloudformation wait stack-create-complete \
+  #             --stack-name bams-${CIRCLE_WORKFLOW_ID:0:5}
+  #     - run:
+  #         name: Get EC2 IP and output for ansible playbook
+  #         command: |
+  #           aws ec2 describe-instances \
+  #             --query 'Reservations[*].Instances[*].PublicIpAddress' \
+  #             --output text >> play
+  #     - run: cat play
+  #     - persist_to_workspace:
+  #         root: .
+  #         paths: 
+  #           - .
 
-  config_infra:
+  # config_infra:
+  #   docker:
+  #     - image: python:3.7-alpine3.11
+  #   steps:
+  #     - checkout
+  #     - add_ssh_keys:
+  #         fingerprints: ["da:60:bc:3a:d9:0b:26:ae:f6:a0:9c:d2:28:2b:df:03"]
+  #     - pipeline_id
+  #     - run:
+  #         name: Install ansible
+  #         command: |
+  #           apk add --update ansible
+  #           apk add --update openssh
+  #           apk add --update tar
+  #           apk add --update gzip
+  #           pip3 install awscli
+  #     - attach_workspace:
+  #         at: .
+  #     - run: cat play
+  #     - run:
+  #         name: Play playbook
+  #         command: |
+  #           ansible-playbook -i play play.yml
+
+  smoke_test:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: alpine:latest
     steps:
-      - checkout
-      - add_ssh_keys:
-          fingerprints: ["da:60:bc:3a:d9:0b:26:ae:f6:a0:9c:d2:28:2b:df:03"]
-      - pipeline_id
+      - run: apk add --update curl
       - run:
-          name: Install ansible
+          name: smoke test
           command: |
-            apk add --update ansible
-            apk add --update openssh
-            apk add --update tar
-            apk add --update gzip
-            pip3 install awscli
-      - attach_workspace:
-          at: .
-      - run: cat play
-      - run:
-          name: Play playbook
-          command: |
-            ansible-playbook -i play play.yml
+            URL="https://blog.udacity.com/"
+            # Test if website exists
+            if curl -s --head ${URL} 
+            then
+              return 0
+            else
+              return 1
+            fi
 
 
 workflows:
@@ -87,8 +104,9 @@ workflows:
   bams_cicd:
     # Run the welcome/run job in its own container
     jobs:
-      - howfar
-      - create_infra
-      - config_infra:
-          requires:
-            - create_infra
+      # - howfar
+      # - create_infra
+      # - config_infra:
+      #     requires:
+      #       - create_infra
+      - smoke_test
