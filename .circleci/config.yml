@@ -53,9 +53,9 @@ jobs:
               --output text >> play
       - run: cat play
       - persist_to_workspace:
-          root: ~/
+          root: .
           paths: 
-            - play
+            - .
 
   config_infra:
     docker:
@@ -70,7 +70,7 @@ jobs:
           command: |
             apk add --update ansibl
       - attach_workspace:
-          at: ~/
+          at: .
       - run: cat play
       - run:
           name: Play playbook
