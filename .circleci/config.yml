@@ -13,6 +13,15 @@ commands:
     steps:
       - run: echo << parameters.id >>
 
+  delete_infra:
+    steps:
+      - run:
+          name: Destroy AWS infrastructure
+          command: |
+            aws cloudformation delete-stack \
+              --stack-name bams-${CIRCLE_WORKFLOW_ID:0:8} \
+              --region=us-east-1
+
 
 jobs:
   # howfar:
@@ -97,7 +106,8 @@ jobs:
             else
               return 1
             fi
-
+      - delete_infra
+        when: on_fail
 
 workflows:
   # Name the workflow "welcome"
