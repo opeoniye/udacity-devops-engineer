@@ -17,6 +17,7 @@ commands:
     steps:
       - run:
           name: Destroy AWS infrastructure
+          when: on_fail
           command: |
             aws cloudformation delete-stack \
               --stack-name bams-${CIRCLE_WORKFLOW_ID:0:8} \
@@ -31,40 +32,40 @@ jobs:
   #     - checkout
   #     - run: echo "hello world"
 
-  # create_infra:
-  #   docker:
-  #     - image: amazon/aws-cli
-  #   steps:
-  #     - checkout
-  #     - pipeline_id
-  #     - run:
-  #         name: Install tar utility
-  #         command: |
-  #           yum install -y tar gzip
-  #     - run: 
-  #         name: create cloudformation stack
-  #         command: |
-  #           aws cloudformation create-stack \
-  #             --stack-name bams-${CIRCLE_WORKFLOW_ID:0:5} \
-  #             --template-body file://ec2.yml \
-  #             --parameters file://ec2.json \
-  #             --region=us-east-1
-  #     - run:
-  #         name: Wait for infrastructure creation
-  #         command: |
-  #           aws cloudformation wait stack-create-complete \
-  #             --stack-name bams-${CIRCLE_WORKFLOW_ID:0:5}
-  #     - run:
-  #         name: Get EC2 IP and output for ansible playbook
-  #         command: |
-  #           aws ec2 describe-instances \
-  #             --query 'Reservations[*].Instances[*].PublicIpAddress' \
-  #             --output text >> play
-  #     - run: cat play
-  #     - persist_to_workspace:
-  #         root: .
-  #         paths: 
-  #           - .
+  create_infra:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - pipeline_id
+      - run:
+          name: Install tar utility
+          command: |
+            yum install -y tar gzip
+      - run: 
+          name: create cloudformation stack
+          command: |
+            aws cloudformation create-stack \
+              --stack-name bams-${CIRCLE_WORKFLOW_ID:0:5} \
+              --template-body file://ec2.yml \
+              --parameters file://ec2.json \
+              --region=us-east-1
+      - run:
+          name: Wait for infrastructure creation
+          command: |
+            aws cloudformation wait stack-create-complete \
+              --stack-name bams-${CIRCLE_WORKFLOW_ID:0:5}
+      - run:
+          name: Get EC2 IP and output for ansible playbook
+          command: |
+            aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --output text >> play
+      - run: cat play
+      - persist_to_workspace:
+          root: .
+          paths: 
+            - .
 
   # config_infra:
   #   docker:
@@ -98,7 +99,7 @@ jobs:
       - run:
           name: smoke test
           command: |
-            URL="https://blog.udacity.com/"
+            URL="https://blogu.udacity.com/"
             # Test if website exists
             if curl -s --head ${URL} 
             then
@@ -107,7 +108,6 @@ jobs:
               return 1
             fi
       - delete_infra
-        when: on_fail
 
 workflows:
   # Name the workflow "welcome"
@@ -115,7 +115,7 @@ workflows:
     # Run the welcome/run job in its own container
     jobs:
       # - howfar
-      # - create_infra
+      - create_infra
       # - config_infra:
       #     requires:
       #       - create_infra
