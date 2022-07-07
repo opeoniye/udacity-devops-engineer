@@ -4,13 +4,13 @@ version: 2.1
 orbs:
   aws-cli: circleci/aws-cli@2.0.3
 
-commands:
+#commands:
 
 
 jobs:
   job1:
     docker:
-      - image: 
+      - image: cimg/base:2021.04
     steps:
       - checkout
       - run: echo "hello world"
