@@ -34,6 +34,10 @@ jobs:
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text >> play
+      - persist_to_workspace:
+          root: ~/
+          paths: 
+            - play
 
   config_infra:
     docker:
@@ -45,7 +49,9 @@ jobs:
       - run:
           name: Install ansible
           command: |
-            apk add --update ansible
+            apk add --update ansibl
+      - attach_workspace:
+          at: ~/
       - run:
           name: Play playbook
           command: |
