@@ -24,7 +24,12 @@ jobs:
           name: create cloudformation stack
           command: |
             chmod +x ec2.sh ec2-update.sh ec2-del.sh \
-            ./ec2.sh bams-${CIRCLE_WORKFLOW_ID:0:5} ec2.yml ec2.json
+            #./ec2.sh bams-${CIRCLE_WORKFLOW_ID:0:5} ec2.yml ec2.json
+            aws cloudformation create-stack \
+              --stack-name bams-${CIRCLE_WORKFLOW_ID:0:5} \
+              --template-body file://ec2.yml \
+              --parameters file://ec2.json \
+              --region=us-east-1 \
             # aws cloudformation deploy \
             #   --template-file ec2.yml \
             #   --parameters ec2.json \
