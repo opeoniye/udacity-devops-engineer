@@ -68,7 +68,7 @@ jobs:
       - run:
           name: Install ansible
           command: |
-            apk add --update ansibl
+            apk add --update ansible
       - attach_workspace:
           at: .
       - run: cat play
