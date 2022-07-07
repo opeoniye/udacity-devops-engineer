@@ -54,7 +54,7 @@ jobs:
           name: Wait for infrastructure creation
           command: |
             aws cloudformation wait stack-create-complete \
-              --stack-name bams-${CIRCLE_WORKFLOW_ID:0:5}
+              --stack-name bams-${CIRCLE_WORKFLOW_ID:0:8}
       - run:
           name: Get EC2 IP and output for ansible playbook
           command: |
