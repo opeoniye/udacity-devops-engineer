@@ -27,6 +27,7 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
+      - pipeline_id
       - run:
           name: Install tar utility
           command: |
@@ -40,16 +41,16 @@ jobs:
               --parameters file://ec2.json \
               --region=us-east-1
       - run:
-          name: Get EC2 ip 
+          name: Get EC2 IP and output for ansible playbook
           command: |
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text >> play
+      - run: cat play
       - persist_to_workspace:
-          root: ~/
+          root: /tmp
           paths: 
             - play
-      - pipeline_id
 
   config_infra:
     docker:
@@ -64,8 +65,8 @@ jobs:
           command: |
             apk add --update ansibl
       - attach_workspace:
-          at: ~/
-      - run: cat ~/play
+          at: /tmp
+      - run: cat /tmp/play
       - run:
           name: Play playbook
           command: |
