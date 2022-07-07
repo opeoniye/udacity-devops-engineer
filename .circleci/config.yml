@@ -66,6 +66,7 @@ jobs:
           root: .
           paths: 
             - .
+      - delete_infra
 
   # config_infra:
   #   docker:
