@@ -8,7 +8,7 @@ orbs:
 
 
 jobs:
-  job1:
+  howfar:
     docker:
       - image: cimg/base:2021.04
     steps:
@@ -23,23 +23,43 @@ jobs:
       - run: 
           name: create cloudformation stack
           command: |
-            chmod +x ec2.sh ec2-update.sh ec2-del.sh \
-            #./ec2.sh bams-${CIRCLE_WORKFLOW_ID:0:5} ec2.yml ec2.json
             aws cloudformation create-stack \
               --stack-name bams-${CIRCLE_WORKFLOW_ID:0:5} \
               --template-body file://ec2.yml \
               --parameters file://ec2.json \
-              --region=us-east-1 \
-            # aws cloudformation deploy \
-            #   --template-file ec2.yml \
-            #   --parameters ec2.json \
-            #   --stack-name bams-${CIRCLE_WORKFLOW_ID:0:5} \
-            #   --region us-east-1
+              --region=us-east-1
+
+  config_infra:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["da:60:bc:3a:d9:0b:26:ae:f6:a0:9c:d2:28:2b:df:03"]
+      - run:
+          name: Install ansible
+          command: |
+            apk add --update ansible
+      - run:
+          name: Get EC2 ip 
+          command: |
+            aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --output text >> play
+      - run:
+          name: Play playbook
+          command: |
+            ansible-playbook -i play play.yml
+
+
 
 workflows:
   # Name the workflow "welcome"
   bams_cicd:
     # Run the welcome/run job in its own container
     jobs:
-      - job1
+      - howfar
       - create_infra
+      - config_infra:
+          requires:
+            - create_infra
