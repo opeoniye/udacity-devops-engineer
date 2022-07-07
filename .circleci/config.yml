@@ -9,6 +9,7 @@ commands:
     parameters:
       id: 
         type: string
+        default: "$CIRCLE_WORKFLOW_ID"
     steps:
       - run: echo << parameters.id >>
 
