@@ -46,7 +46,7 @@ jobs:
           name: create cloudformation stack
           command: |
             aws cloudformation create-stack \
-              --stack-name bams-${CIRCLE_WORKFLOW_ID:0:5} \
+              --stack-name bams-${CIRCLE_WORKFLOW_ID:0:8} \
               --template-body file://ec2.yml \
               --parameters file://ec2.json \
               --region=us-east-1
@@ -93,9 +93,10 @@ jobs:
 
   smoke_test:
     docker:
-      - image: alpine:latest
+      - image: amazon/aws-cli
     steps:
-      - run: apk add --update curl
+      - run: yum install -y curl tar gzip
+      - run: aws --version
       - run:
           name: smoke test
           command: |
@@ -119,4 +120,6 @@ workflows:
       # - config_infra:
       #     requires:
       #       - create_infra
-      - smoke_test
+      - smoke_test:
+          requires:
+            - create_infra
