@@ -4,7 +4,13 @@ version: 2.1
 orbs:
   aws-cli: circleci/aws-cli@2.0.3
 
-#commands:
+commands:
+  pipeline_id:
+    parameters:
+      id: 
+        type: string
+    steps:
+      - run: echo << parameters.id >>
 
 
 jobs:
@@ -20,6 +26,10 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
+      - run:
+          name: Install tar utility
+          command: |
+            yum install -y tar gzip
       - run: 
           name: create cloudformation stack
           command: |
@@ -38,6 +48,7 @@ jobs:
           root: ~/
           paths: 
             - play
+      - pipeline_id
 
   config_infra:
     docker:
@@ -46,17 +57,18 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints: ["da:60:bc:3a:d9:0b:26:ae:f6:a0:9c:d2:28:2b:df:03"]
+      - pipeline_id
       - run:
           name: Install ansible
           command: |
             apk add --update ansibl
       - attach_workspace:
           at: ~/
+      - run: cat ~/play
       - run:
           name: Play playbook
           command: |
             ansible-playbook -i play play.yml
-
 
 
 workflows:
