@@ -21,13 +21,13 @@ jobs:
     steps:
       - checkout
       - run: 
-        name: create cloudformation stack
-        command: |
-          aws cloudformation deploy \
-            --template-file ec2.yml \
-            --parameters ec2.json \
-            --stack-name bams-${CIRCLE_WORKFLOW_ID:0:5} \
-            --region us-east-1
+          name: create cloudformation stack
+          command: |
+            aws cloudformation deploy \
+              --template-file ec2.yml \
+              --parameters ec2.json \
+              --stack-name bams-${CIRCLE_WORKFLOW_ID:0:5} \
+              --region us-east-1
 
 workflows:
   # Name the workflow "welcome"
