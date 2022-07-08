@@ -32,41 +32,41 @@ jobs:
   #     - checkout
   #     - run: echo "hello world"
 
-  create_infra:
-    docker:
-      - image: amazon/aws-cli
-    steps:
-      - checkout
-      - pipeline_id
-      - run:
-          name: Install tar utility
-          command: |
-            yum install -y tar gzip
-      - run: 
-          name: create cloudformation stack
-          command: |
-            aws cloudformation create-stack \
-              --stack-name bams-${CIRCLE_WORKFLOW_ID:0:8} \
-              --template-body file://ec2.yml \
-              --parameters file://ec2.json \
-              --region=us-east-1
-      - run:
-          name: Wait for infrastructure creation
-          command: |
-            aws cloudformation wait stack-create-complete \
-              --stack-name bams-${CIRCLE_WORKFLOW_ID:0:8}
-      - run:
-          name: Get EC2 IP and output for ansible playbook
-          command: |
-            aws ec2 describe-instances \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --output text >> play
-      - run: cat play
-      - persist_to_workspace:
-          root: .
-          paths: 
-            - .
-      - delete_infra
+  # create_infra:
+  #   docker:
+  #     - image: amazon/aws-cli
+  #   steps:
+  #     - checkout
+  #     - pipeline_id
+  #     - run:
+  #         name: Install tar utility
+  #         command: |
+  #           yum install -y tar gzip
+  #     - run: 
+  #         name: create cloudformation stack
+  #         command: |
+  #           aws cloudformation create-stack \
+  #             --stack-name bams-${CIRCLE_WORKFLOW_ID:0:8} \
+  #             --template-body file://ec2.yml \
+  #             --parameters file://ec2.json \
+  #             --region=us-east-1
+  #     - run:
+  #         name: Wait for infrastructure creation
+  #         command: |
+  #           aws cloudformation wait stack-create-complete \
+  #             --stack-name bams-${CIRCLE_WORKFLOW_ID:0:8}
+  #     - run:
+  #         name: Get EC2 IP and output for ansible playbook
+  #         command: |
+  #           aws ec2 describe-instances \
+  #             --query 'Reservations[*].Instances[*].PublicIpAddress' \
+  #             --output text >> play
+  #     - run: cat play
+  #     - persist_to_workspace:
+  #         root: .
+  #         paths: 
+  #           - .
+  #     - delete_infra
 
   # config_infra:
   #   docker:
@@ -92,24 +92,87 @@ jobs:
   #         command: |
   #           ansible-playbook -i play play.yml
 
-  smoke_test:
+  # smoke_test:
+  #   docker:
+  #     - image: amazon/aws-cli
+  #   steps:
+  #     - run: yum install -y curl tar gzip
+  #     - run: aws --version
+  #     - run:
+  #         name: smoke test
+  #         command: |
+  #           URL="https://blogu.udacity.com/"
+  #           # Test if website exists
+  #           if curl -s --head ${URL} 
+  #           then
+  #             return 0
+  #           else
+  #             return 1
+  #           fi
+  #     - delete_infra
+
+  create_and_deploy_front_end:
     docker:
       - image: amazon/aws-cli
     steps:
-      - run: yum install -y curl tar gzip
-      - run: aws --version
+      - checkout
       - run:
-          name: smoke test
+          name: Execute bucket.yml - Create Cloudformation Stack
           command: |
-            URL="https://blogu.udacity.com/"
-            # Test if website exists
-            if curl -s --head ${URL} 
-            then
-              return 0
-            else
-              return 1
-            fi
-      - delete_infra
+            aws cloudformation deploy \
+            --template-file s3.yml \
+            --stack-name create-bucket-${CIRCLE_WORKFLOW_ID:0:8} \
+            --parameter-overrides MyBucketName="bams-${CIRCLE_WORKFLOW_ID:0:8}" \
+            --region=us-east-1
+      - run: aws s3 sync new/. s3://bams-${CIRCLE_WORKFLOW_ID:0:8} --delete
+
+  get_last_deployment_id:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run: yum install -y tar gzip
+      - run:
+          name: Fetch and save the old pipeline ID (bucket name) responsible for the last release.
+          command: |
+            aws cloudformation \
+            list-exports --query "Exports[?Name==\`PipelineID\`].Value" \
+            --no-paginate --output text > id.txt
+      - persist_to_workspace:
+          root: .
+          paths: 
+            - .
+
+  promote_to_production:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Execute cloudfront.yml
+          command: |
+            aws cloudformation deploy \
+            --template-file cloudfront.yml \
+            --stack-name bams-prod \
+            --parameter-overrides PipelineID="bams-${CIRCLE_WORKFLOW_ID:0:8}" \
+            --tags project=bams \
+
+  clean_up_old_front_end:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run: yum install -y tar gzip
+      - attach_workspace:
+          at: .
+      - run:
+          name: Destroy the previous production version's S3 bucket and CloudFormation stack. 
+          # Use $OldBucketID environment variable or mybucket644752792305 below.
+          # Similarly, you can create and use $OldStackID environment variable in place of production-distro 
+          command: |
+            export OldBucketID=$(cat id.txt)
+            aws s3 rm "s3://${OldBucketID}" --recursive
+
 
 workflows:
   # Name the workflow "welcome"
@@ -117,10 +180,19 @@ workflows:
     # Run the welcome/run job in its own container
     jobs:
       # - howfar
-      - create_infra
+      # - create_infra
       # - config_infra:
       #     requires:
       #       - create_infra
-      - smoke_test:
+      # - smoke_test:
+      #     requires:
+      #       - create_infra
+      - create_and_deploy_front_end
+      - promote_to_production:
+          requires: 
+            - create_and_deploy_front_end
+      - get_last_deployment_id
+      - clean_up_old_front_end:
           requires:
-            - create_infra
+            - get_last_deployment_id
+            - promote_to_production
