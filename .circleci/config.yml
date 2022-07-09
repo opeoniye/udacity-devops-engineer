@@ -4,7 +4,8 @@ commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
-      # Add parameter here   
+      id:
+        type: string 
     steps:
       - run:
           name: Destroy environments
@@ -51,7 +52,7 @@ jobs:
 
   build-backend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -67,15 +68,17 @@ jobs:
 
   test-frontend:
     docker:
-      # Docker image here
+      - image: cimg/node:13.8.0
     steps:
-      # Checkout code from git
+      - checkout
       # Restore from cache
+      - restore_cache
       # Your job code here
                 
   test-backend:
     docker:
       # Docker image here
+      image: cimg/node:13.8.0
     steps:
       # Checkout code from git
       # Restore from cache
@@ -84,22 +87,27 @@ jobs:
   scan-frontend:
     docker:
       # Docker image here
+      image: cimg/node:13.8.0
     steps:
       # Checkout code from git
+      - checkout
       # Restore from cache
       # Your job code here
 
   scan-backend:
     docker:
       # Docker image here
+      image: cimg/node:13.8.0
     steps:
       # Checkout code from git
+      - checkout
       # Restore from cache
       # Your job code here
 
   deploy-infrastructure:
     docker:
       # Docker image here that supports AWS CLI
+      image: cimg/aws:2022.6.1
     steps:
       # Checkout code from git
       - run:
@@ -132,7 +140,7 @@ jobs:
       # Here's where you will add some code to rollback on failure      
 
   configure-infrastructure:
-    docker:
+    docker: cimg/deploy:2022.6.1
       # Docker image here that supports Ansible
     steps:
       # Checkout code from git
@@ -151,7 +159,7 @@ jobs:
       # Here's where you will add some code to rollback on failure      
 
   run-migrations:
-    docker:
+    docker: cimg/node:13.8.0
       # Docker image here that supports NodeJS
     steps:
       # Checkout code from git
@@ -170,6 +178,7 @@ jobs:
   deploy-frontend:
     docker:
       # Docker image here that supports AWS CLI
+      image: cimg/aws:2022.6.1
     steps:
       # Checkout code from git
       - run:
@@ -189,12 +198,14 @@ jobs:
       # Here's where you will add some code to rollback on failure      
                     
   deploy-backend:
-    docker:
+    docker: cimg/deploy:2022.6.1
       # Docker image here that supports Ansible
     steps:
-      # Checkout code from git
-      # Add ssh keys with fingerprint
-      # attach workspace
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["da:60:bc:3a:d9:0b:26:ae:f6:a0:9c:d2:28:2b:df:03"]
+      - attach_workspace:
+          at: ~/
       - run:
           name: Install dependencies
           command: |
@@ -206,8 +217,7 @@ jobs:
       # Here's where you will add some code to rollback on failure  
 
   smoke-test:
-    docker:
-      # Lightweight Docker image 
+    docker: cimg/deploy:2022.6.1
     steps:
       # Checkout code from git
       - run:
@@ -230,9 +240,9 @@ jobs:
 
   cloudfront-update:
     docker:
-      # Docker image here that supports AWS CLI
+      image: cimg/aws:2022.6.1
     steps:
-      # Checkout code from git
+      - checkout
       - run:
           name: Install dependencies
           command: |
@@ -245,9 +255,9 @@ jobs:
 
 cleanup:
     docker:
-      # Docker image here
+      image: cimg/aws:2022.6.1
     steps:
-      # Checkout code from git
+      - checkout
       - run:
           name: Get old stack workflow id
           command: |
