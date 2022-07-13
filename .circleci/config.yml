@@ -139,10 +139,11 @@ jobs:
 
   deploy-infrastructure:
     docker:
-      - image: cimg/aws:2022.6
+      - image: amazon/aws-cli
     steps:
       - checkout
       - run: aws --version
+      - run: yum install -y curl tar gzip
       - run:
           name: Ensure backend infrastructure exists
           command: |
@@ -216,7 +217,7 @@ jobs:
   # deploy-frontend:
   #   docker:
   #     # Docker image here that supports AWS CLI
-  #     - image: cimg/aws:2022.6.1
+  #     - image: amazon/aws-cli
   #   steps:
   #     - checkout
   #     - run:
@@ -280,7 +281,7 @@ jobs:
 
   # cloudfront-update:
   #   docker:
-  #     - image: cimg/aws:2022.6.1
+  #     - image: amazon/aws-cli
   #   steps:
   #     - checkout
   #     - run:
@@ -295,7 +296,7 @@ jobs:
 
   # cleanup:
   #   docker:
-  #     - image: cimg/aws:2022.6.1
+  #     - image: amazon/aws-cli
   #   steps:
   #     - checkout
   #     - run:
