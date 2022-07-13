@@ -9,7 +9,7 @@ Parameters:
   ImageId:
     Type: String
     Description: 'Linux 2 AMI for Ireland eu-west1 Region'
-    Default: 'ami-052efd3df9dad4825'
+    Default: ami-052efd3df9dad4825
 
   KeyPair:
     Description: SSH Keypair to login to the instance
@@ -34,11 +34,6 @@ Resources:
         - IpProtocol: tcp
           FromPort: 5432
           ToPort: 5432
-          CidrIp: 0.0.0.0/0
-      SecurityGroupEgress:
-        - IpProtocol: -1
-          FromPort: -1
-          ToPort: -1
           CidrIp: 0.0.0.0/0
 
   EC2Instance:

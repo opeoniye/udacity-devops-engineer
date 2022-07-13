@@ -160,7 +160,8 @@ jobs:
               --template-file .circleci/files/frontend.yml \
               --tags project=bams \
               --stack-name bams-frontend-${CIRCLE_WORKFLOW_ID:0:8} \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:8}" 
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:8}" \
+              --region=us-east-1
       - run:
           name: Add backend IP to ansible inventory
           command: |
