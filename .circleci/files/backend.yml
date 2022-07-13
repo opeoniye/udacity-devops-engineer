@@ -9,7 +9,7 @@ Parameters:
   VPC:
     Description: parameter VPC
     Type: AWS::EC2::VPC::Id
-    Defaukt: vpc-0784ce1583ea8b21d
+    Default: vpc-0784ce1583ea8b21d
 
   ImageId:
     Type: String
