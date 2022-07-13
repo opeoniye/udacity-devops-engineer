@@ -3,9 +3,9 @@ version: 2.1
 commands:
   destroy_infra:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-    parameters:
-      id:
-        type: string
+    # parameters:
+    #   id:
+    #     type: string
     steps:
       - run:
           name: Destroy backend infrastructure
