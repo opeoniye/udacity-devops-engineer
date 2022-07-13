@@ -228,7 +228,6 @@ jobs:
             cd backend
             npm install
             npm run migrations > migrations_dump.txt
-            no_output_timeout: 30m
       - run:
           name: Send migration results to kvdb
           command: |
