@@ -8,16 +8,12 @@ commands:
     #     type: string
     steps:
       - run:
-          name: Destroy backend infrastructure
+          name: Destroy frontend/backend infrastructure
           when: on_fail
           command: |
             aws cloudformation delete-stack \
               --stack-name bams-backend-${CIRCLE_WORKFLOW_ID:0:8} \
               --region=us-east-1
-      - run:
-          name: Destroy frontend infrastructure
-          when: on_fail
-          command: |
             aws cloudformation delete-stack \
               --stack-name bams-frontend-${CIRCLE_WORKFLOW_ID:0:8} \
               --region=us-east-1
@@ -219,6 +215,13 @@ jobs:
       - checkout
       - restore_cache:
           keys: [backend-build]
+      - run:
+          name: Install dependencies
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install -i /usr/local/aws-cli -b /usr/local/bin
+            aws --version
       - run:
           name: Run migrations
           command: |

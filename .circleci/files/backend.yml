@@ -6,6 +6,11 @@ Parameters:
     Description: Unique identifier.
     Type: String
 
+  VPC:
+    Description: parameter VPC
+    Type: AWS::EC2::VPC::Id
+    Defaukt: vpc-0784ce1583ea8b21d
+
   ImageId:
     Type: String
     Description: 'Linux 2 AMI for Ireland eu-west1 Region'
@@ -22,6 +27,8 @@ Resources:
     Properties:
       GroupName: !Sub UdaPeople-${ID}
       GroupDescription: Allow port 22 and port 3030.
+      VpcId: 
+        Ref: VPC
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 22
@@ -35,6 +42,11 @@ Resources:
           FromPort: 5432
           ToPort: 5432
           CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          FromPort: -1
+          ToPort: -1
+          CidrIp: 0.0.0.0/0 
 
   EC2Instance:
     Type: AWS::EC2::Instance
