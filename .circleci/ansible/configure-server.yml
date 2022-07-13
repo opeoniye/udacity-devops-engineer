@@ -1,6 +1,6 @@
 ---
 
-- name: "configuration play." 
+- name: configuration playbook
   hosts: web
   user: ubuntu
   become: true
@@ -13,7 +13,7 @@
     - ansible_stdout_callback: yaml
 
   pre_tasks:
-    - name: "wait 600 seconds for target connection to become reachable/usable."
+    - name: wait 600 seconds for target connection to become reachable/usable
       wait_for_connection:
 
   # Get the environment variables from CircleCI and add to the EC2 instance
@@ -29,4 +29,4 @@
     - TYPEORM_MIGRATIONS_DIR: "{{ lookup('env', 'TYPEORM_MIGRATIONS_DIR')}}"
 
   roles:
-    configure-server
+    - configure-server
