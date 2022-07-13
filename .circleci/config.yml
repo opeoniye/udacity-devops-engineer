@@ -139,9 +139,10 @@ jobs:
 
   deploy-infrastructure:
     docker:
-      - image: cimg/aws:2022.6.1
+      - image: cimg/aws:2022.6
     steps:
       - checkout
+      - run: aws --version
       - run:
           name: Ensure backend infrastructure exists
           command: |
