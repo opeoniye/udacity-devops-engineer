@@ -175,27 +175,30 @@ jobs:
             - .circleci/ansible/inventory.txt
       - destroy_infra
 
-  # configure-infrastructure:
-  #   docker: 
-  #     - image: cimg/deploy:2022.6.1
-  #     # Docker image here that supports Ansible
-  #   steps:
-  #     - checkout
-  #     - add_ssh_keys:
-  #         fingerprints: ["da:60:bc:3a:d9:0b:26:ae:f6:a0:9c:d2:28:2b:df:03"]
-  #     - attach_workspace:
-  #         at: ~/
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           # Your code here
-  #           exit 1
-  #     - run:
-  #         name: Configure server
-  #         command: |
-  #           # Your code here
-  #           exit 1
-  #     # Here's where you will add some code to rollback on failure      
+  configure-infrastructure:
+    docker: 
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["da:60:bc:3a:d9:0b:26:ae:f6:a0:9c:d2:28:2b:df:03"]
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible
+            apk add --update openssh
+            apk add --update tar
+            apk add --update gzip
+            pip3 install awscli
+      - run:
+          name: Configure server
+          command: |
+            cd .circleci/ansible
+            cat inventory.txt
+            ansible-playbook -i inventory.txt configure-server.yml
+      - destroy_infra
 
   # run-migrations:
   #   docker: 
@@ -333,8 +336,8 @@ workflows:
           filters:
             branches:
               only: [3-project]
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
       # - run-migrations:
       #     requires: [configure-infrastructure]
       # - deploy-frontend:
