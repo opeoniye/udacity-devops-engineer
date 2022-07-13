@@ -91,6 +91,9 @@ jobs:
             cd frontend
             npm install
             npm run test
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: frontend-build
         
   test-backend:
     docker:
@@ -105,6 +108,9 @@ jobs:
             cd backend
             npm install
             npm run test
+      - save_cache:
+          paths: [backend/node_modules]
+          key: backend-build
             
   scan-frontend:
     docker:
@@ -120,6 +126,9 @@ jobs:
             npm install
             npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: frontend-build
 
   scan-backend:
     docker:
@@ -136,6 +145,9 @@ jobs:
             npm audit fix --audit-level=critical --force
             npm audit fix --force
             npm audit --audit-level=critical
+      - save_cache:
+          paths: [backend/node_modules]
+          key: backend-build
 
   deploy-infrastructure:
     docker:
@@ -200,23 +212,27 @@ jobs:
             ansible-playbook -i inventory.txt configure-server.yml
       - destroy_infra
 
-  # run-migrations:
-  #   docker: 
-  #     - image: cimg/node:13.8.0
-  #     # Docker image here that supports NodeJS
-  #   steps:
-  #     - checkout
-  #     - run:
-  #         name: Run migrations
-  #         command: |
-  #           # Your code here
-  #           exit 1
-  #     - run:
-  #         name: Send migration results to memstash
-  #         command: |
-  #           # Your code here
-  #           exit 1
-  #    # Here's where you will add some code to rollback on failure      
+  run-migrations:
+    docker: 
+      - image: cimg/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [backend-build]
+      - run:
+          name: Run migrations
+          command: |
+            cd backend
+            npm install
+            npm run migrations > migrations_dump.txt
+      - run:
+          name: Send migration results to kvdb
+          command: |
+            if grep -q "has been executed successfully." /backend/migrations_dump.txt
+            then
+                curl https://kvdb.io/Hhn4mXEkfUaa9rwxwvv2RJ/migration_${CIRCLE_WORKFLOW_ID:0:8}  -d '1'
+            fi
+      - destroy_infra    
 
   # deploy-frontend:
   #   docker:
@@ -238,7 +254,7 @@ jobs:
   #         name: Deploy frontend objects
   #         command: |
   #           # your code here
-  #     # Here's where you will add some code to rollback on failure      
+  #     - destroy_infra
                     
   # deploy-backend:
   #   docker: 
@@ -258,7 +274,7 @@ jobs:
   #         name: Deploy backend
   #         command: |
   #           # your code here
-  #     # Here's where you will add some code to rollback on failure  
+  #     - destroy_infra
 
   # smoke-test:
   #   docker: 
@@ -281,7 +297,7 @@ jobs:
   #         name: Frontend smoke test.
   #         command: |
   #           # your code here
-  #     # Here's where you will add some code to rollback on failure  
+  #     - destroy_infra
 
   # cloudfront-update:
   #   docker:
@@ -296,7 +312,7 @@ jobs:
   #         name: Update cloudfront distribution
   #         command: |
   #           # your code here
-  #     # Here's where you will add some code to rollback on failure  
+  #     - destroy_infra
 
   # cleanup:
   #   docker:
