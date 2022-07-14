@@ -29,9 +29,8 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            SUCCESS=$(curl --insecure  https://kvdb.io/Hhn4mXEkfUaa9rwxwvv2RJ/migration_<< parameters.workflow_id >>)
-            SUCCESS = 1
-            if(( $SUCCESS==1 )); 
+            export SUCCESS=$(curl --insecure  https://kvdb.io/Hhn4mXEkfUaa9rwxwvv2RJ/migration_<< parameters.workflow_id >>)
+            if (( $SUCCESS == 1 ));
             then
               cd backend
               npm install
@@ -228,6 +227,7 @@ jobs:
           command: |
             cd backend
             npm install
+            npm audit fix --audit-level=critical --force
             npm audit fix --force
             npm run migrations > migrations_dump.txt
             cd ..
