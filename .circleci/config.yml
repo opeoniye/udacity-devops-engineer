@@ -3,14 +3,15 @@ version: 2.1
 commands:
   destroy_infra:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-    # parameters:
-    #   id:
-    #     type: string
+    parameters:
+      workflow_id:
+        type: string
     steps:
       - run:
           name: Destroy frontend/backend infrastructure
           when: on_fail
           command: |
+            echo "Destroying environment: << parameters.workflow_id >> "
             aws cloudformation delete-stack \
               --stack-name bams-backend-${CIRCLE_WORKFLOW_ID:0:8} \
               --region=us-east-1
@@ -18,26 +19,23 @@ commands:
               --stack-name bams-frontend-${CIRCLE_WORKFLOW_ID:0:8} \
               --region=us-east-1
 
-#   revert-migrations:
-#     description: Revert the last migration if successfully run in the current workflow.
-#     parameters:
-#       # Add parameter here
-#       id:
-#         type: string
-#     steps:
-#       - run:
-#           name: Revert migrations
-#           # Add when this will run
-#           command: |
-#             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-#             SUCCESS = 1
-#             if(( $SUCCESS==1 )); 
-#             then
-#             #  cd ~/project/backend
-#             #  npm install
-#             #  Add revert code here. You can find this in the Getting Started section.
-#               exit 1
-#             fi
+  revert_migrations:
+    description: Revert the last migration if successfully run in the current workflow.
+    parameters:
+      workflow_id:
+        type: string
+    steps:
+      - run:
+          name: Revert migrations
+          command: |
+            SUCCESS=$(curl --insecure  https://kvdb.io/Hhn4mXEkfUaa9rwxwvv2RJ/migration_<< parameters.workflow_id >>)
+            SUCCESS = 1
+            if(( $SUCCESS==1 )); 
+            then
+              cd backend
+              npm install
+              npm run migration:revert
+            fi
      
 jobs:
   build-frontend:
@@ -181,7 +179,8 @@ jobs:
           root: .
           paths:
             - .circleci/ansible/inventory.txt
-      - destroy_infra
+      - destroy_infra:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:8}
 
   configure-infrastructure:
     docker: 
@@ -206,7 +205,8 @@ jobs:
             cd .circleci/ansible
             cat inventory.txt
             ansible-playbook -i inventory.txt configure-server.yml
-      - destroy_infra
+      - destroy_infra:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:8}
 
   run-migrations:
     docker: 
@@ -231,34 +231,52 @@ jobs:
       - run:
           name: Send migration results to kvdb
           command: |
-            if grep -q "has been executed successfully." /backend/migrations_dump.txt
+            if grep -q "has been executed successfully." backend/migrations_dump.txt
             then
                 curl https://kvdb.io/Hhn4mXEkfUaa9rwxwvv2RJ/migration_${CIRCLE_WORKFLOW_ID:0:8}  -d '1'
             fi
-      - destroy_infra    
+      - destroy_infra:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:8}
+      - revert_migrations:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:8}
 
-  # deploy-frontend:
-  #   docker:
-  #     # Docker image here that supports AWS CLI
-  #     - image: amazon/aws-cli
-  #   steps:
-  #     - checkout
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           # your code here
-  #     - run:
-  #         name: Get backend url
-  #         command: |
-  #           # your code here
-  #           export API_URL="http://${BACKEND_IP}:3030"
-  #           echo "${API_URL}"
-  #     - run:
-  #         name: Deploy frontend objects
-  #         command: |
-  #           # your code here
-  #     - destroy_infra
-                    
+  deploy-frontend:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install dependencies
+          command: |
+            yum install -y curl tar gzip
+            yum install -y nodejs
+            yum install -y ansible
+      - run:
+          name: Get backend url
+          command: |
+            export BACKEND_IP=$(aws ec2 describe-instances \
+            --query 'Reservations[*].Instances[*].PublicIpAddress')
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "API_URL = ${API_URL}"
+            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            cat frontend/.env
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+      - run:
+          name: Deploy frontend objects
+          command: |
+            cd frontend
+            npm install
+            npm run build
+            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:8}".tar.gz dist
+            aws s3 cp dist/. s3://udapeople-${CIRCLE_WORKFLOW_ID:0:8} --recursive
+      - destroy_infra:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:8}
+      - revert_migrations:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:8}
+
   # deploy-backend:
   #   docker: 
   #     - image: cimg/deploy:2022.6.1
@@ -335,7 +353,7 @@ jobs:
   #           then
   #             # your code here
   #           fi
-          
+
 
 workflows:
   bams:
@@ -359,8 +377,8 @@ workflows:
           requires: [deploy-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
-      # - deploy-frontend:
-      #     requires: [run-migrations]
+      - deploy-frontend:
+          requires: [run-migrations]
       # - deploy-backend:
       #     requires: [run-migrations]
       # - smoke-test:
