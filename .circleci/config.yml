@@ -27,6 +27,7 @@ commands:
     steps:
       - run:
           name: Revert migrations
+          when: on_fail
           command: |
             SUCCESS=$(curl --insecure  https://kvdb.io/Hhn4mXEkfUaa9rwxwvv2RJ/migration_<< parameters.workflow_id >>)
             SUCCESS = 1
@@ -34,7 +35,7 @@ commands:
             then
               cd backend
               npm install
-              npm run migration:revert
+              npm run migrations:revert
             fi
      
 jobs:
@@ -210,7 +211,7 @@ jobs:
 
   run-migrations:
     docker: 
-      - image: cimg/node:13.8.0
+      - image: cimg/node:18.4.0
     steps:
       - checkout
       - restore_cache:
@@ -227,6 +228,7 @@ jobs:
           command: |
             cd backend
             npm install
+            npm audit fix --force
             npm run migrations > migrations_dump.txt
             cd ..
       - run:
