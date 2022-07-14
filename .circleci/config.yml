@@ -35,8 +35,6 @@ commands:
               cd backend
               npm install
               npm run migrations:revert
-            else
-              return 0
             fi
      
 jobs:
@@ -212,7 +210,7 @@ jobs:
 
   run-migrations:
     docker: 
-      - image: cimg/node:18.4.0
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - restore_cache:
