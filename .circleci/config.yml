@@ -30,7 +30,8 @@ commands:
           when: on_fail
           command: |
             export SUCCESS=$(curl --insecure  https://kvdb.io/Hhn4mXEkfUaa9rwxwvv2RJ/migration_<< parameters.workflow_id >>)
-            if (( $SUCCESS == 1 ));
+            echo $SUCCESS
+            if [[ $SUCCESS == 1 ]];
             then
               cd backend
               npm install
@@ -306,6 +307,7 @@ jobs:
           name: Install nodejs
           command: |
             # https://github.com/nvm-sh/nvm/issues/1102#issuecomment-591560924
+            touch $HOME/.profile
             apk add --no-cache libstdc++; \
             curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | sh; \
             echo 'source $HOME/.profile;' >> $HOME/.zshrc; \
