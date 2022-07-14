@@ -238,6 +238,8 @@ jobs:
             if grep -q "has been executed successfully." backend/migrations_dump.txt
             then
                 curl https://kvdb.io/Hhn4mXEkfUaa9rwxwvv2RJ/migration_${CIRCLE_WORKFLOW_ID:0:8}  -d '1'
+            else
+              return 1
             fi
       - destroy_infra:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:8}
