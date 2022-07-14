@@ -228,9 +228,11 @@ jobs:
             cd backend
             npm install
             npm run migrations > migrations_dump.txt
+            cd ..
       - run:
           name: Send migration results to kvdb
           command: |
+            ls
             if grep -q "has been executed successfully." backend/migrations_dump.txt
             then
                 curl https://kvdb.io/Hhn4mXEkfUaa9rwxwvv2RJ/migration_${CIRCLE_WORKFLOW_ID:0:8}  -d '1'
@@ -272,6 +274,7 @@ jobs:
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:8}".tar.gz dist
             aws s3 cp dist/. s3://udapeople-${CIRCLE_WORKFLOW_ID:0:8} --recursive
+            cd ..
       - destroy_infra:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:8}
       - revert_migrations:
