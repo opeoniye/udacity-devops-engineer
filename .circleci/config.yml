@@ -256,7 +256,7 @@ jobs:
           command: |
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
-            sudo ./aws/install -i /usr/local/aws-cli -b /usr/local/bin
+            ./aws/install -i /usr/local/aws-cli -b /usr/local/bin
             aws --version
       - attach_workspace:
           at: .
@@ -300,9 +300,7 @@ jobs:
             sudo su
             apt-get update && apt-get -y upgrade
             apt-get install -y ansible ssh
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install -i /usr/local/aws-cli -b /usr/local/bin
+            apt-get install -y awscli
             aws --version
       - run:
           name: Deploy backend
