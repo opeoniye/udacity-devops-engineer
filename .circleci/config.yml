@@ -14,7 +14,7 @@ commands:
             echo "Destroying environment: << parameters.workflow_id >> "
             aws cloudformation delete-stack \
               --stack-name bams-backend-${CIRCLE_WORKFLOW_ID:0:8} \
-              --region=us-east-
+              --region=us-east-1
             aws s3 rb s3://udapeople-${CIRCLE_WORKFLOW_ID:0:8} --force --region us-east-1
             aws cloudformation delete-stack \
               --stack-name bams-frontend-${CIRCLE_WORKFLOW_ID:0:8} \
@@ -321,7 +321,7 @@ jobs:
             npm run build > build_dump.txt
             cd ..
             tar -C backend -czvf artifact.tar.gz . && ls -la
-            cp artifact.tar.gz .circleci/ansible/roles/deploy/files
+            mv artifact.tar.gz .circleci/ansible/roles/deploy/files/artifact.tar.gz
             ls .circleci/ansible/roles/deploy/files
             cd .circleci/ansible
             cat inventory.txt
