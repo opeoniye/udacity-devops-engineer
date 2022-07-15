@@ -17,12 +17,12 @@
 - name: unzip backend artifact
   unarchive:
     src: files/artifact.tar.gz
-    dest: /tmp
+    dest: ~/backend
 
-- name: Copy backend files
-  copy:
-    src: /tmp/artifact/
-    dest: ~/backend/
+# - name: Copy backend files
+#   copy:
+#     src: /tmp/artifact/
+#     dest: ~/backend/
 
 - name: Start backend app
   shell: |
