@@ -287,7 +287,7 @@ jobs:
 
   deploy-backend:
     docker: 
-      - image: python:3.7-alpine3.11
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - add_ssh_keys:
@@ -297,16 +297,15 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update ansible
-            apk add --update openssh
-            apk add --update tar gzip curl
-            /usr/local/bin/python -m pip install --upgrade pip
-            pip3 install awscli
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install -i /usr/local/aws-cli -b /usr/local/bin
+            aws --version
+            apt-get install -y ansible openssh
       - run:
           name: Install nodejs
           command: |
             # https://github.com/nvm-sh/nvm/issues/1102#issuecomment-591560924
-            apk add --no-cache libstdc++
             mkdir $HOME/.nvm && touch $HOME/.profile && ls -la $HOME
             curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | sh; \
             echo 'source $HOME/.profile;' >> $HOME/.zshrc; \
