@@ -297,11 +297,12 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install -i /usr/local/aws-cli -b /usr/local/bin
-            aws --version
+            apt-get update && apt get upgrade
             apt-get install -y ansible openssh
+            # curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            # unzip awscliv2.zip
+            # sudo ./aws/install -i /usr/local/aws-cli -b /usr/local/bin
+            # aws --version
       - run:
           name: Deploy backend
           command: |
