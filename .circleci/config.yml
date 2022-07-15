@@ -307,7 +307,7 @@ jobs:
           command: |
             # https://github.com/nvm-sh/nvm/issues/1102#issuecomment-591560924
             apk add --no-cache libstdc++
-            ls -la $HOME && touch $HOME/.profile
+            mkdir $HOME/.nvm && touch $HOME/.profile
             curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | sh; \
             echo 'nvm_get_arch() { nvm_echo "x64-musl"; }' >> $HOME/.profile; \
             source $NVM_DIR/nvm.sh; source $HOME/.profile; \
