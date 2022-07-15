@@ -321,6 +321,7 @@ jobs:
             npm run build > build_dump.txt
             cd ..
             tar -C backend -czvf artifact.tar.gz . && ls -la
+            mkdir .circleci/ansible/roles/deploy/files
             mv ./artifact.tar.gz .circleci/ansible/roles/deploy/files/artifact.tar.gz
             ls .circleci/ansible/roles/deploy/files
             cd .circleci/ansible
