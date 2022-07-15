@@ -351,6 +351,8 @@ jobs:
           name: Get backend url
           command: |
             # Fetch and prepare the BACKEND_IP env var
+            export BACKEND_IP=$(aws ec2 describe-instances \
+            --query 'Reservations[*].Instances[*].PublicIpAddress')
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
       - run:
@@ -402,7 +404,7 @@ jobs:
   #             --template-file .circleci/files/cloudfront.yml \
   #             --stack-name InitialStack \
   #             --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:8}" \
-  #             --tags project=udapeople \
+  #             --tags project=bams \
   #             --region=us-east-1 \
   #     - destroy_infra:
   #         workflow_id: ${CIRCLE_WORKFLOW_ID:0:8}
@@ -414,6 +416,16 @@ jobs:
   #     - image: amazon/aws-cli
   #   steps:
   #     - checkout
+  #     - run:
+  #         name: Install dependencies
+  #         command: |
+  #           aws --version
+  #           yum install -y curl tar gzip
+  #           yum install -y gcc-c++ make
+  #     - run:
+  #         name: Install nodejs 13.x
+  #         command: |
+  #           curl -fsSL https://rpm.nodesource.com/setup_13.x | bash -  
   #     - run:
   #         name: Get old stack workflow id
   #         command: |
