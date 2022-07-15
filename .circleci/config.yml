@@ -306,13 +306,11 @@ jobs:
           name: Install nodejs
           command: |
             # https://github.com/nvm-sh/nvm/issues/1102#issuecomment-591560924
-            ls -la $HOME
             apk add --no-cache libstdc++
+            ls -la $HOME && touch $HOME/.profile
             curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.1/install.sh | sh; \
-            echo 'source $HOME/.profile;' >> $HOME/.zshrc; \
-            echo 'export NVM_NODEJS_ORG_MIRROR=https://unofficial-builds.nodejs.org/download/release;' >> $HOME/.profile; \
             echo 'nvm_get_arch() { nvm_echo "x64-musl"; }' >> $HOME/.profile; \
-            NVM_DIR="$HOME/.nvm"; source $HOME/.nvm/nvm.sh; source $HOME/.profile; \
+            source $NVM_DIR/nvm.sh; source $HOME/.profile; \
             nvm install 13.8.0
       - run:
           name: Deploy backend
