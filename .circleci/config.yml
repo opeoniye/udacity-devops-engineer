@@ -248,16 +248,22 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: cimg/node:13.8.0
+      - image: python:3.7-buster
     steps:
       - checkout
       - run:
           name: Install dependencies
           command: |
+            apt-get install -y ansible ssh tar gzip curl
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
             ./aws/install -i /usr/local/aws-cli -b /usr/local/bin
             aws --version
+      - run:
+          name: Install nodejs 13.x
+          command: |
+            curl -fsSL https://deb.nodesource.com/setup_13.x | bash -
+            apt-get install -y nodejs
       - attach_workspace:
           at: .
       - run:
@@ -287,7 +293,7 @@ jobs:
 
   deploy-backend:
     docker: 
-      - image: cimg/node:13.8.0
+      - image: python:3.7-buster
     steps:
       - checkout
       - add_ssh_keys:
@@ -297,11 +303,16 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            sudo su
-            apt-get update && apt-get -y upgrade
-            apt-get install -y ansible ssh
-            apt-get install -y awscli
+            apt-get install -y ansible ssh tar gzip curl
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            ./aws/install -i /usr/local/aws-cli -b /usr/local/bin
             aws --version
+      - run:
+          name: Install nodejs 13.x
+          command: |
+            curl -fsSL https://deb.nodesource.com/setup_13.x | bash -
+            apt-get install -y nodejs
       - run:
           name: Deploy backend
           command: |
@@ -318,7 +329,6 @@ jobs:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:8}
       - revert_migrations:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:8}
-
 
 
   # smoke-test:
