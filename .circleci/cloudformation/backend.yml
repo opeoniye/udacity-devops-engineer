@@ -30,11 +30,23 @@ Resources:
   EC2Instance:
     Type: AWS::EC2::Instance
     Properties:
-      InstanceType: t2.micro
+      InstanceType: t2.medium
       SecurityGroupIds:
         - Ref: SG
       KeyName: !Ref KeyPair
       ImageId: !Ref ImageId
+      # Block device mapping for EBS volumes
+      # BlockDeviceMappings:
+      #   - DeviceName: /dev/xvda
+      #     Ebs:
+      #       VolumeType: gp2
+      #       VolumeSize: '20'
+      #       DeleteOnTermination: 'true'
+      #       Encrypted: 'false'
+      # Block device mapping for instance store volumes
+      BlockDeviceMappings:
+        - DeviceName: /dev/sdc
+          VirtualName: ephemeral0
       Tags:
         - Key: Name
           Value: !Sub backend-${ID}

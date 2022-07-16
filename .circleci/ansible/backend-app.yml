@@ -1,0 +1,50 @@
+---
+
+- name: deploy backend app playbook
+  hosts: web
+  user: ubuntu
+  gather_facts: false
+  vars:
+    os_environment:
+      - key: ansible_python_interpreter
+        value: /usr/bin/python3
+      - key: ansible_host_key_checking
+        value: false
+      - key: ansible_stdout_callback
+        value: yaml
+      - key: NODE_ENV
+        value: production
+      - key: ENVIRONMENT
+        value: production
+      - key: TYPEORM_CONNECTION
+        value: "{{ lookup('env', 'TYPEORM_CONNECTION')}}"
+      - key: TYPEORM_ENTITIES
+        value: "{{ lookup('env', 'TYPEORM_ENTITIES')}}"
+      - key: TYPEORM_HOST
+        value: "{{ lookup('env', 'TYPEORM_HOST')}}"
+      - key: TYPEORM_PORT
+        value: "{{ lookup('env', 'TYPEORM_PORT')}}"
+      - key: TYPEORM_USERNAME
+        value: "{{ lookup('env', 'TYPEORM_USERNAME')}}"
+      - key: TYPEORM_PASSWORD
+        value: "{{ lookup('env', 'TYPEORM_PASSWORD')}}"
+      - key: TYPEORM_DATABASE
+        value: "{{ lookup('env', 'TYPEORM_DATABASE')}}"
+      - key: TYPEORM_MIGRATIONS
+        value: "{{ lookup('env', 'TYPEORM_MIGRATIONS')}}"
+      - key: TYPEORM_MIGRATIONS_DIR
+        value: "{{ lookup('env', 'TYPEORM_MIGRATIONS_DIR')}}"
+
+  tasks:
+    - name: set system wide environment on remote
+      become: yes
+      ansible.builtin.lineinfile:
+        dest: /etc/environment
+        state: present
+        regexp: "^{{ item.key }}="
+        line: " {{ item.key }}={{ item.value }}"
+      with_items: "{{ os_environment }}"
+      debugger: on_failed
+
+  roles:
+    - backend-app

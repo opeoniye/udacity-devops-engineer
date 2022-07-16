@@ -1,0 +1,44 @@
+---
+- name: update/upgrade packages
+  become: yes
+  apt:
+    update_cache: yes
+    upgrade: yes
+    cache_valid_time: 86400
+
+- name: remove unneeded dependencies
+  become: yes
+  apt:
+    autoremove: yes
+
+- name: create backend directory
+  file:
+    path: ~/backend
+    state: directory
+
+- name: unzip backend artifact
+  unarchive:
+    src: files/artifact.tar.gz
+    dest: ~/backend
+
+- name: Start backend app
+  register: startBackend
+  shell: |
+    cd ~/backend && ls
+    npm install > /dev/null
+    pm2 stop default
+    pm2 start npm -- start
+
+- name: check pm2 log
+  shell: pm2 logs --nostream
+  register: pm2
+
+- name: Debug backend
+  debug:
+    var: startBackend
+    verbosity: 2
+
+- name: Debug pm2
+  debug:
+    var: pm2
+    verbosity: 2
