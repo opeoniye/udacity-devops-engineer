@@ -27,9 +27,9 @@
 
 - name: Start backend app
   register: startBackend
-  command: pm2 start -f ./main.js
+  command: pm2 start npm -- start
   args:
-    chdir: ~/backend/dist
+    chdir: ~/backend
 
 - name: check pm2 log
   shell: pm2 logs --nostream
@@ -49,7 +49,10 @@
 # pm2 monit
 # pm2 list
 # pm2 stop
+# pm2 logs
 # pm2 restart
-# pm2 delete
+# pm2 delete all
+# pm2 start npm -- start
+# ssh -i bams.cer ubuntu@18.207.29.215
 # https://pm2.keymetrics.io/
 # http://44.206.136.243:3030/api/status
