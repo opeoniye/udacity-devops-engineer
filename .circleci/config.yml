@@ -365,13 +365,13 @@ jobs:
             cd .circleci/ansible && ansible --version
             ansible-playbook -i inventory smoke.yml -vv
       - run:
-          name: Backend smoke test.
+          name: Backend smoke test
           command: |
             # Fetch and prepare the BACKEND_IP env var
             export BACKEND_IP=$(aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
             export API_URL="http://${BACKEND_IP}:3030"
-            echo $API_URL
+            echo $API_URL/api/status
             if curl -s $API_URL/api/status | grep "ok"
             then
                 exit 0
@@ -379,7 +379,7 @@ jobs:
                 exit 1
             fi
       - run:
-          name: Frontend smoke test.
+          name: Frontend smoke test
           command: |
             URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:8}.s3-website-us-east-1.amazonaws.com/#/employees"            
             echo ${URL} 
