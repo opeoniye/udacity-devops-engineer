@@ -372,10 +372,10 @@ jobs:
             else
               return 1
             fi
-      # - destroy_infra:
-      #     workflow_id: ${CIRCLE_WORKFLOW_ID:0:8}
-      # - revert_migrations:
-      #     workflow_id: ${CIRCLE_WORKFLOW_ID:0:8}
+      - destroy_infra:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:8}
+      - revert_migrations:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:8}
 
   # cloudfront-update:
   #   docker:
