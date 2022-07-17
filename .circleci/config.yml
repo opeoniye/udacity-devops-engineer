@@ -405,7 +405,7 @@ jobs:
   #         command: |
   #           aws --version
   #           yum install -y curl tar gzip
-  #           yum install -y gcc-c++ make
+  #           yum install -y gcc-c++ make wget
   #     - run:
   #         name: Install nodejs 13.x
   #         command: |
