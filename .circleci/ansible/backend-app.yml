@@ -35,7 +35,7 @@
       - key: TYPEORM_MIGRATIONS_DIR
         value: "{{ lookup('env', 'TYPEORM_MIGRATIONS_DIR')}}"
 
-  tasks:
+  pre_tasks:
     - name: set system wide environment on remote
       become: yes
       ansible.builtin.lineinfile:
