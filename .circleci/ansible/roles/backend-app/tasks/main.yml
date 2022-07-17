@@ -21,14 +21,15 @@
     src: files/artifact.tar.gz
     dest: ~/backend
 
+- name: pm2 delete all
+  command: pm2 delete all
+  ignore_errors: true
+
 - name: Start backend app
   register: startBackend
-  shell: |
-    cd ~/backend
-    npm run migrations
-    pm2 stop default
-    pm2 delete all
-    pm2 start npm -- start
+  command: pm2 start -f ./main.js
+  args:
+    chdir: ~/backend/dist
 
 - name: check pm2 log
   shell: pm2 logs --nostream

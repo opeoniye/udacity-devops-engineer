@@ -30,7 +30,7 @@
 #     apt-get remove -y nodejs
 #     apt-get install -y nodejs
 
-- name: install deps
+- name: install nodejs
   become: yes
   apt:
     name: ['nodejs', 'npm']
@@ -41,6 +41,14 @@
   become: true
   npm:
     name: pm2
+    global: yes
+    production: yes
+    state: present
+
+- name: install forever
+  become: true
+  npm:
+    name: forever
     global: yes
     production: yes
     state: present
