@@ -290,7 +290,7 @@ jobs:
 
   deploy-backend:
     docker: 
-      - image: python:3.7-buster
+      - image: python:3.10-buster
     steps:
       - checkout
       - add_ssh_keys:
@@ -324,11 +324,10 @@ jobs:
             mkdir .circleci/ansible/roles/backend-app/files
             mv artifact.tar.gz .circleci/ansible/roles/backend-app/files/artifact.tar.gz
             ls .circleci/ansible/roles/backend-app/files
-            cd .circleci/ansible
-            cat inventory
+            cd .circleci/ansible && cat inventory
             ansible --version
             ansible-playbook backend-app.yml --syntax-check
-            ansible-playbook -i inventory backend-app.yml -v
+            ansible-playbook -i inventory backend-app.yml -vv
       - destroy_infra:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:8}
       - revert_migrations:
@@ -376,8 +375,8 @@ jobs:
             else
               return 1
             fi
-      - destroy_infra:
-          workflow_id: ${CIRCLE_WORKFLOW_ID:0:8}
+      # - destroy_infra:
+      #     workflow_id: ${CIRCLE_WORKFLOW_ID:0:8}
       - revert_migrations:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:8}
 
