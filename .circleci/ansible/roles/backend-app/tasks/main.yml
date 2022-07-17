@@ -53,6 +53,6 @@
 # pm2 restart
 # pm2 delete all
 # pm2 start npm -- start
-# ssh -i bams.cer ubuntu@18.207.29.215
+# ssh -i bams.cer ubuntu@54.208.186.227
 # https://pm2.keymetrics.io/
 # http://44.206.136.243:3030/api/status

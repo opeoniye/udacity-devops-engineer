@@ -336,20 +336,34 @@ jobs:
 
   smoke-test:
     docker: 
-      - image: amazon/aws-cli
+      - image: python:3.10-buster
     steps:
       - checkout
+      - add_ssh_keys:
+          fingerprints: ["da:60:bc:3a:d9:0b:26:ae:f6:a0:9c:d2:28:2b:df:03"]
+      - attach_workspace:
+          at: .
       - run:
           name: Install dependencies
           command: |
+            apt-get update && apt-get -y upgrade
+            apt-get install -y ssh tar gzip curl
+            python3 -m pip -V
+            python3 -m pip install ansible
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            ./aws/install -i /usr/local/aws-cli -b /usr/local/bin
             aws --version
-            yum install -y curl tar gzip
-            yum install -y gcc-c++ make
       - run:
           name: Install nodejs 13.x
           command: |
-            curl -fsSL https://rpm.nodesource.com/setup_13.x | bash -
+            curl -fsSL https://deb.nodesource.com/setup_13.x | bash -
             yum install -y nodejs
+      - run:
+          name: Run ansible smoke.yml
+          command: |
+            cd .circleci/ansible && ansible --version
+            ansible-playbook -i inventory smoke.yml -vv
       - run:
           name: Backend smoke test.
           command: |
