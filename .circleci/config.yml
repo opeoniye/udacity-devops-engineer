@@ -38,7 +38,7 @@ commands:
               npm install > /dev/null
               npm run migrations:revert
             fi
-     
+
 jobs:
   build-frontend:
     docker:
@@ -183,7 +183,7 @@ jobs:
 
   configure-infrastructure:
     docker: 
-      - image: python:3.7-alpine3.11
+      - image: python:3.10-alpine3.16 #python:3.7-alpine3.11
     steps:
       - checkout
       - add_ssh_keys:
@@ -194,7 +194,7 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update --no-cache tar gzip ansible openssh
-            #pip3 install --upgrade pip
+            pip3 install --upgrade pip
             pip3 install awscli
       - run:
           name: Configure server
@@ -244,7 +244,7 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: python:3.7-buster
+      - image: python:3.10-buster
     steps:
       - checkout
       - run:
@@ -375,10 +375,10 @@ jobs:
             else
               return 1
             fi
-      # - destroy_infra:
-      #     workflow_id: ${CIRCLE_WORKFLOW_ID:0:8}
-      # - revert_migrations:
-      #     workflow_id: ${CIRCLE_WORKFLOW_ID:0:8}
+      - destroy_infra:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:8}
+      - revert_migrations:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:8}
 
   # cloudfront-update:
   #   docker:

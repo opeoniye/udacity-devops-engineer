@@ -25,7 +25,8 @@
   register: startBackend
   shell: |
     cd ~/backend
-    #npm run migrations
+    npm run migrations
+    pm2 stop default
     pm2 delete all
     pm2 start npm -- start
 
@@ -50,4 +51,4 @@
 # pm2 restart
 # pm2 delete
 # https://pm2.keymetrics.io/
-# http://54.145.79.52:3030/api/status
+# http://44.206.136.243:3030/api/status
