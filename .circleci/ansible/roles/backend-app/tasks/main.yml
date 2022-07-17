@@ -25,7 +25,7 @@
   register: startBackend
   shell: |
     cd ~/backend
-    npm run migrations
+    #npm run migrations
     pm2 delete all
     pm2 start npm -- start
 
