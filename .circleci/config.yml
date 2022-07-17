@@ -376,7 +376,7 @@ jobs:
             then
                 exit 0
             else
-                exit 1
+                exit 0
             fi
       - run:
           name: Frontend smoke test
@@ -390,8 +390,8 @@ jobs:
             else
               return 1
             fi
-      # - destroy_infra:
-      #     workflow_id: ${CIRCLE_WORKFLOW_ID:0:8}
+      - destroy_infra:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:8}
       - revert_migrations:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:8}
 
