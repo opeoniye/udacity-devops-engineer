@@ -360,7 +360,7 @@ jobs:
             curl -fsSL https://deb.nodesource.com/setup_13.x | bash -
             apt-get install -y nodejs
       - run:
-          name: Run ansible smoke.yml
+          name: Run backend again
           command: |
             cd .circleci/ansible && ansible --version
             ansible-playbook -i inventory smoke.yml -vv
@@ -386,7 +386,7 @@ jobs:
             if curl -s ${URL} | grep "Welcome"
             then
               # Change this to 0 after the job fails
-              return 1
+              return 0
             else
               return 1
             fi
@@ -395,36 +395,36 @@ jobs:
       - revert_migrations:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:8}
 
-  # cloudfront-update:
-  #   docker:
-  #     - image: amazon/aws-cli
-  #   steps:
-  #     - checkout
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           aws --version
-  #           yum install -y curl tar gzip
-  #           yum install -y gcc-c++ make wget
-  #     - run:
-  #         name: Install nodejs 13.x
-  #         command: |
-  #           curl -fsSL https://rpm.nodesource.com/setup_13.x | bash -
-  #           yum install -y nodejs
-  #     - run:
-  #         name: Update cloudfront distribution
-  #         command: |
-  #           # Change the initial stack name, as applicable to you
-  #           aws cloudformation deploy \
-  #             --template-file .circleci/cloudformation/cloudfront.yml \
-  #             --stack-name InitialStack \
-  #             --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:8}" \
-  #             --tags project=bams \
-  #             --region=us-east-1 \
-  #     - destroy_infra:
-  #         workflow_id: ${CIRCLE_WORKFLOW_ID:0:8}
-  #     - revert_migrations:
-  #         workflow_id: ${CIRCLE_WORKFLOW_ID:0:8}
+  cloudfront-update:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            aws --version
+            yum install -y curl tar gzip
+            yum install -y gcc-c++ make wget
+      - run:
+          name: Install nodejs 13.x
+          command: |
+            curl -fsSL https://rpm.nodesource.com/setup_13.x | bash -
+            yum install -y nodejs
+      - run:
+          name: Update cloudfront distribution
+          command: |
+            # Change the initial stack name, as applicable to you
+            aws cloudformation deploy \
+              --template-file .circleci/cloudformation/cloudfront.yml \
+              --stack-name InitialStack \
+              --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:8}" \
+              --tags project=bams \
+              --region=us-east-1 \
+      - destroy_infra:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:8}
+      - revert_migrations:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:8}
 
   # cleanup:
   #   docker:
