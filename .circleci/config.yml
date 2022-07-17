@@ -301,7 +301,9 @@ jobs:
           name: Install dependencies
           command: |
             apt-get update && apt-get -y upgrade
-            apt-get install -y ansible ssh tar gzip curl
+            apt-get install -y ssh tar gzip curl
+            python3 -m pip -V
+            python3 -m pip install ansible
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
             ./aws/install -i /usr/local/aws-cli -b /usr/local/bin
@@ -324,6 +326,7 @@ jobs:
             ls .circleci/ansible/roles/backend-app/files
             cd .circleci/ansible
             cat inventory
+            ansible --version
             ansible-playbook backend-app.yml --syntax-check
             ansible-playbook -i inventory backend-app.yml -v
       - destroy_infra:
