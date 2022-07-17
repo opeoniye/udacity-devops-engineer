@@ -9,6 +9,8 @@
     - name: pm2 delete all
       command: pm2 delete all
       ignore_errors: true
+      args:
+        chdir: ~/backend
 
     - name: Start backend app
       register: startBackend
