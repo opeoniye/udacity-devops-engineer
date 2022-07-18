@@ -1,0 +1,72 @@
+Description: >
+  UdaPeople backend stack.
+
+Parameters:
+  ID:
+    Description: Unique identifier.
+    Type: String
+
+  VPC:
+    Description: parameter VPC
+    Type: AWS::EC2::VPC::Id
+    Default: vpc-0784ce1583ea8b21d
+
+  ImageId:
+    Type: String
+    Description: Ubuntu AMI for North Virginia eu-east-1 region
+    Default: ami-052efd3df9dad4825
+
+  KeyPair:
+    Description: SSH Keypair to login to the instance
+    Type: AWS::EC2::KeyPair::KeyName
+    Default: bams
+
+  SG:
+    Description: EC2 security group
+    Type: AWS::EC2::SecurityGroup::Id
+    Default: sg-083b50aca0ae26bc2
+
+Resources:
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      SecurityGroupIds:
+        - Ref: SG
+      KeyName: !Ref KeyPair
+      ImageId: !Ref ImageId
+      # Block device mapping for EBS volumes
+      # BlockDeviceMappings:
+      #   - DeviceName: /dev/xvda
+      #     Ebs:
+      #       VolumeType: gp2
+      #       VolumeSize: '20'
+      #       DeleteOnTermination: 'true'
+      #       Encrypted: 'false'
+      # Block device mapping for instance store volumes
+      BlockDeviceMappings:
+        - DeviceName: /dev/sdc
+          VirtualName: ephemeral0
+      Tags:
+        - Key: Name
+          Value: !Sub bams-${ID}
+
+  #Allocate and associate Elastic IP with my instance
+  # https://github.com/awslabs/aws-cloudformation-templates/blob/master/aws/services/EC2/EIP_With_Association.yaml
+  IPAddress:
+    Type: AWS::EC2::EIP
+  
+  IPAssoc:
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      InstanceId: !Ref EC2Instance
+      EIP: !Ref IPAddress
+
+Outputs:
+  InstanceId:
+    Description: InstanceId of the newly created EC2 instance
+    Value: !Ref EC2Instance
+
+  InstanceIPAddress:
+    Description: IP address of the newly created EC2 instance
+    Value: !Ref IPAddress
