@@ -209,7 +209,7 @@ jobs:
             cd .circleci/ansible
             cat inventory
             ansible --version
-            ansible-playbook -i inventory node-exporter.yml -vv
+            ansible-playbook -i node node-exporter.yml -vv
       - destroy_infra:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:8}
 

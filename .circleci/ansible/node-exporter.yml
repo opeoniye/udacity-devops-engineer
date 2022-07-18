@@ -1,6 +1,6 @@
 ---
 - name: setup prometheus node_exporter playbook
-  hosts: web
+  hosts: prometheus
   user: ubuntu
   become: true
   gather_facts: false
