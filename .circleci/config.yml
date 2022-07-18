@@ -172,6 +172,7 @@ jobs:
           command: |
             aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            --filters "Name=tag-value,Values=backend-${CIRCLE_WORKFLOW_ID:0:8}" \
             --output text >> .circleci/ansible/inventory
       - run: cat .circleci/ansible/inventory
       - persist_to_workspace:
@@ -275,7 +276,9 @@ jobs:
           name: Get backend url
           command: |
             export BACKEND_IP=$(aws ec2 describe-instances \
-            --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
+            --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            --filters "Name=tag-value,Values=backend-${CIRCLE_WORKFLOW_ID:0:8}" \
+            --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
@@ -367,7 +370,7 @@ jobs:
             curl -fsSL https://deb.nodesource.com/setup_13.x | bash -
             apt-get install -y nodejs
       - run:
-          name: Run backend again
+          name: Run pm2 command on backend again
           command: |
             cd .circleci/ansible && ansible --version
             ansible-playbook -i inventory smoke.yml -vv
@@ -376,7 +379,9 @@ jobs:
           command: |
             # Fetch and prepare the BACKEND_IP env var
             export BACKEND_IP=$(aws ec2 describe-instances \
-            --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
+            --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            --filters "Name=tag-value,Values=backend-${CIRCLE_WORKFLOW_ID:0:8}" \
+            --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo $API_URL/api/status
             if curl -s $API_URL/api/status | grep "ok"
@@ -458,6 +463,9 @@ jobs:
       - run:
           name: Remove old stacks and files
           command: |
+            export OldWorkflowID=cwpi485wuh
+            echo OldWorkflowID: "${OldWorkflowID}"
+            echo CIRCLE_WORKFLOW_ID: "${CIRCLE_WORKFLOW_ID:0:8}"
             if [[ "${CIRCLE_WORKFLOW_ID:0:8}" =~ "${OldWorkflowID}" ]]
             then
               echo ******* Delete pass *******
