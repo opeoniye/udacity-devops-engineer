@@ -8,7 +8,7 @@ Public URL for your CloudFront distribution (aka, your blue production front-end
 http://d1n5p2l5hldysp.cloudfront.net
 
 Public URLs to deployed application back-end in EC2 [URL04]
-
+http://52.2.42.21:3030/api/status
 
 Public URL to your Prometheus Server [URL05]
 
