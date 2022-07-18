@@ -461,7 +461,7 @@ jobs:
             if [[ "${CIRCLE_WORKFLOW_ID:0:8}" =~ "${OldWorkflowID}" ]]
             then
               echo ******* Delete pass *******
-              aws s3 rb "s3://bams-${OldWorkflowID}" --force --region us-east-1
+              aws s3 rb "s3://udapeople-${OldWorkflowID}" --force
               aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
               aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
             else
