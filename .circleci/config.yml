@@ -429,7 +429,7 @@ jobs:
             # Change the initial stack name, as applicable to you
             aws cloudformation deploy \
               --template-file .circleci/cloudformation/cloudfront.yml \
-              --stack-name InitialStack \
+              --stack-name bams-old-bucket \
               --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:8}" \
               --tags project=bams \
               --region=us-east-1 \
