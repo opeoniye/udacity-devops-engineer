@@ -13,12 +13,10 @@ commands:
           command: |
             echo "Destroying environment: << parameters.workflow_id >> "
             aws cloudformation delete-stack \
-              --stack-name bams-backend-${CIRCLE_WORKFLOW_ID:0:8} \
-              --region=us-east-1
-            aws s3 rb s3://udapeople-${CIRCLE_WORKFLOW_ID:0:8} --force --region us-east-1
+              --stack-name bams-backend-${CIRCLE_WORKFLOW_ID:0:8}
+            aws s3 rb s3://udapeople-${CIRCLE_WORKFLOW_ID:0:8} --force
             aws cloudformation delete-stack \
-              --stack-name bams-frontend-${CIRCLE_WORKFLOW_ID:0:8} \
-              --region=us-east-1
+              --stack-name bams-frontend-${CIRCLE_WORKFLOW_ID:0:8}
 
   revert_migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -156,8 +154,7 @@ jobs:
               --template-file .circleci/cloudformation/backend.yml \
               --tags project=bams \
               --stack-name bams-backend-${CIRCLE_WORKFLOW_ID:0:8} \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:8}" \
-              --region=us-east-1
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:8}"
       - run:
           name: Ensure frontend infrastructure exist
           command: |
@@ -165,8 +162,7 @@ jobs:
               --template-file .circleci/cloudformation/frontend.yml \
               --tags project=bams \
               --stack-name bams-frontend-${CIRCLE_WORKFLOW_ID:0:8} \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:8}" \
-              --region=us-east-1
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:8}"
       - run:
           name: Add backend IP to ansible inventory
           command: |
@@ -431,8 +427,7 @@ jobs:
               --template-file .circleci/cloudformation/cloudfront.yml \
               --stack-name bams-cloudfront \
               --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:8}" \
-              --tags project=bams \
-              --region=us-east-1 \
+              --tags project=bams
       - destroy_infra:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:8}
       - revert_migrations:
