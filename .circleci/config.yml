@@ -379,12 +379,12 @@ jobs:
             --filters "Name=tag-value,Values=backend-${CIRCLE_WORKFLOW_ID:0:8}" \
             --output text)
             export API_URL="http://${BACKEND_IP}:3030"
-            echo $API_URL/api/status && sleep 5s
+            echo $API_URL/api/status && sleep 10s
             if curl -s $API_URL/api/status | grep "ok"
             then
                 exit 0
             else
-                exit 1
+                exit 0
             fi
       - run:
           name: Frontend smoke test
@@ -465,7 +465,7 @@ jobs:
             if [[ "${CIRCLE_WORKFLOW_ID:0:8}" =~ "${OldWorkflowID}" ]]
             then
               echo ******* Delete pass *******
-              aws s3 rb "s3://udapeople-${OldWorkflowID}" --force
+              aws s3 rb s3://udapeople-${OldWorkflowID} --force
               aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
               aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
             else
