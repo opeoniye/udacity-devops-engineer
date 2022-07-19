@@ -43,10 +43,6 @@ Resources:
             VolumeSize: '20'
             DeleteOnTermination: 'true'
             Encrypted: 'false'
-      # Block device mapping for instance store volumes
-      # BlockDeviceMappings:
-      #   - DeviceName: /dev/sdc
-      #     VirtualName: ephemeral0
       Tags:
         - Key: Name
           Value: !Sub backend-${ID}
