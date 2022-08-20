@@ -1,3 +1,22 @@
+(.devops) ➜  projects git:(4-project) ✗ ./run_kubernetes.sh
+Docker Image: opeoniye/predict-api:v1.0
+pod/predict-api created
+NAME          READY   STATUS              RESTARTS   AGE
+predict-api   0/1     ContainerCreating   0          0s
+error: unable to forward port because pod is not running. Current status=Pending
+(.devops) ➜  projects git:(4-project) ✗ kubectl get pods
+NAME          READY   STATUS              RESTARTS   AGE
+predict-api   0/1     ContainerCreating   0          11s
+(.devops) ➜  projects git:(4-project) ✗ kubectl get pods
+NAME          READY   STATUS              RESTARTS   AGE
+predict-api   0/1     ContainerCreating   0          22s
+(.devops) ➜  projects git:(4-project) ✗ kubectl get pods
+NAME          READY   STATUS              RESTARTS   AGE
+predict-api   0/1     ContainerCreating   0          32s
+(.devops) ➜  projects git:(4-project) ✗ kubectl get pods
+NAME          READY   STATUS    RESTARTS   AGE
+predict-api   1/1     Running   0          4m2s
+(.devops) ➜  projects git:(4-project) ✗ ./run_kubernetes.sh
 Docker Image: opeoniye/predict-api:v1.0
 Error from server (AlreadyExists): pods "predict-api" already exists
 NAME          READY   STATUS    RESTARTS   AGE
