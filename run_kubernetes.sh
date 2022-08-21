@@ -10,6 +10,7 @@ dockerpath="opeoniye/predict-api:v1.0"
 # Run the Docker Hub container with kubernetes
 echo "Docker Image: $dockerpath"
 kubectl run predict-api \
+    --generator=run-pod/v1 \
     --image=$dockerpath \
     --port=80 --labels app=predict-api
 
@@ -20,3 +21,4 @@ kubectl get pods
 # Step 4:
 # Forward the container port to a host
 kubectl port-forward predict-api 8000:80
+kubectl logs predict-api
